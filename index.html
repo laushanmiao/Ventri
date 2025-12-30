@@ -1,0 +1,2009 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ventri | AI English Coach</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=Inter:wght@300;400;500;600&display=swap"
+        rel="stylesheet">
+
+    <!-- Marked.js for Markdown parsing -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+    <!-- API Key Configuration - INSERT YOUR KEY BELOW -->
+    <script>
+        const CONFIG = {
+            // ========================================
+            // INSERT YOUR GEMINI API KEY HERE:
+            // ========================================
+            GEMINI_API_KEY: 'YOUR_GEMINI_API_KEY'
+        };
+    </script>
+
+    <style>
+        :root {
+            /* Color Palette - Tech Bright */
+            --deep-teal: #1F506E;
+            --cyan: #2D9CA6;
+            --tech-green: #5DCE7C;
+
+            --bg-bright: #F8FAFB;
+            --bg-card: rgba(255, 255, 255, 0.95);
+            --bg-glass: rgba(255, 255, 255, 0.8);
+            --bg-header: rgba(255, 255, 255, 0.9);
+            --bg-tint: rgba(45, 156, 166, 0.05);
+            --bg-dropdown: #ffffff;
+            --text-title: #1F506E;
+            --primary: #2D9CA6;
+            /* Cyan */
+            --primary-glow: rgba(45, 156, 166, 0.3);
+            --accent: #5DCE7C;
+            /* Bright Tech Green */
+            --text-main: #1F506E;
+            --text-muted: #5A7C92;
+            --border-glass: rgba(31, 80, 110, 0.15);
+
+            /* Gradients */
+            --gradient-main: linear-gradient(135deg, #2D9CA6, #5DCE7C);
+            --gradient-main: linear-gradient(135deg, #2D9CA6, #5DCE7C);
+            --gradient-text: linear-gradient(90deg, #1F506E, #2D9CA6);
+
+            --bg-gradient: linear-gradient(to bottom, #F8FAFB 0%, #E8F4F5 100%);
+            --bg-input: #ffffff;
+        }
+
+        [data-theme="dark"] {
+            --deep-teal: #E8E6F3;
+            --cyan: #7B62D9;
+            --tech-green: #F248A1;
+
+            --bg-bright: #0f0c1d;
+            --bg-card: rgba(30, 24, 55, 0.95);
+            --bg-glass: rgba(30, 24, 55, 0.8);
+            --bg-header: rgba(30, 24, 55, 0.9);
+            --bg-tint: var(--bg-input);
+            --text-title: #B852C4;
+            --bg-dropdown: #1e1837;
+
+            --primary: #7B62D9;
+            --primary-glow: rgba(123, 98, 217, 0.4);
+
+            --accent: #F248A1;
+
+            --text-main: #E2DFEB;
+            --text-muted: #9FA2B4;
+            --border-glass: rgba(184, 82, 196, 0.25);
+
+            --gradient-main: linear-gradient(135deg, #7B62D9, #F248A1);
+            --gradient-text: linear-gradient(90deg, #B852C4, #F248A1);
+
+            --bg-gradient: linear-gradient(to bottom, #0f0c1d 0%, #201335 100%);
+            --bg-input: rgba(30, 24, 55, 0.6);
+        }
+
+        /* Toggle Button Style */
+        .theme-toggle {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid var(--border-glass);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1.2rem;
+            color: var(--text-main);
+        }
+
+        .theme-toggle:hover {
+            background: var(--primary-glow);
+            border-color: var(--primary);
+            transform: rotate(15deg);
+        }
+
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-gradient);
+            color: var(--text-main);
+            min-height: 100vh;
+            overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Background Effects */
+        .bg-orb {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(100px);
+            z-index: -1;
+            opacity: 0.2;
+            animation: float 15s infinite ease-in-out;
+        }
+
+        .orb-1 {
+            top: -10%;
+            left: -10%;
+            width: 600px;
+            height: 600px;
+            background: var(--cyan);
+        }
+
+        .orb-2 {
+            bottom: -10%;
+            right: -10%;
+            width: 500px;
+            height: 500px;
+            background: var(--tech-green);
+            animation-delay: -7.5s;
+        }
+
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translate(0, 0);
+            }
+
+            50% {
+                transform: translate(30px, -30px);
+            }
+        }
+
+        /* Layout */
+        header {
+            padding: 1.5rem 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--bg-header);
+            backdrop-filter: blur(20px);
+            border-bottom: 2px solid var(--border-glass);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 4px 20px rgba(31, 80, 110, 0.08);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .logo:hover {
+            transform: scale(1.05);
+        }
+
+        .logo img {
+            height: 50px;
+            width: auto;
+            filter: drop-shadow(0 2px 8px rgba(45, 156, 166, 0.3));
+        }
+
+        .logo-text {
+            font-family: 'Outfit', sans-serif;
+            font-weight: 700;
+            font-size: 1.8rem;
+            background: var(--gradient-text);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -0.02em;
+        }
+
+        main {
+            flex: 1;
+            padding: 2rem 5%;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 900px;
+            perspective: 1000px;
+        }
+
+        /* Glass Cards */
+        .glass-panel {
+            background: var(--bg-card);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 2px solid var(--border-glass);
+            border-radius: 24px;
+            padding: 3rem;
+            box-shadow: 0 10px 40px 0 rgba(31, 80, 110, 0.12);
+            transition: transform 0.3s ease, opacity 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .glass-panel:hover {
+            box-shadow: 0 15px 50px 0 rgba(45, 156, 166, 0.18);
+        }
+
+        .view-section {
+            display: none;
+            /* Hidden by default */
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        .view-section.active {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            animation: fadeIn 0.5s forwards ease-out;
+        }
+
+        @keyframes fadeIn {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        h1,
+        h2 {
+            font-family: 'Outfit', sans-serif;
+            color: var(--deep-teal);
+        }
+
+        h1 {
+            font-size: 3rem;
+            line-height: 1.2;
+            margin-bottom: 1rem;
+            color: var(--text-title);
+        }
+
+        h2 {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        h3 {
+            color: var(--deep-teal);
+        }
+
+        p {
+            color: var(--text-muted);
+            line-height: 1.6;
+            font-size: 1.1rem;
+        }
+
+        /* Inputs & Buttons */
+        input,
+        select,
+        textarea {
+            width: 100%;
+            padding: 1rem;
+            background: var(--bg-input);
+            border: 2px solid var(--border-glass);
+            border-radius: 12px;
+            color: var(--text-main);
+            font-family: inherit;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        input:focus,
+        select:focus,
+        textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px var(--primary-glow);
+            background: var(--bg-input);
+        }
+
+        /* Bright mode select dropdown */
+        select {
+            background-color: var(--bg-input);
+            cursor: pointer;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%231F506E' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10l-5 5z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 1rem center;
+            padding-right: 2.5rem;
+        }
+
+        select option {
+            background-color: var(--bg-dropdown);
+            color: var(--text-main);
+            padding: 0.5rem;
+        }
+
+        select option:hover {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        select option:checked {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem 2rem;
+            border-radius: 50px;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            letter-spacing: 0.02em;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: var(--gradient-main);
+            color: white;
+            box-shadow: 0 4px 20px var(--primary-glow);
+            font-weight: 600;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 30px rgba(45, 156, 166, 0.4);
+        }
+
+        .btn-secondary {
+            background: var(--bg-input);
+            border: 2px solid var(--border-glass);
+            color: var(--text-main);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(45, 156, 166, 0.05);
+            border-color: var(--primary);
+            transform: translateY(-2px);
+        }
+
+        .btn-large {
+            width: 100%;
+            font-size: 1.2rem;
+            padding: 1.25rem;
+        }
+
+        /* Dashboard Grid */
+        .module-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .module-card {
+            background: var(--bg-card);
+            border: 2px solid var(--border-glass);
+            padding: 2.5rem;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .module-card:hover {
+            background: var(--bg-glass);
+            border-color: var(--primary);
+            transform: translateY(-8px);
+            box-shadow: 0 15px 40px rgba(45, 156, 166, 0.2);
+        }
+
+        .module-icon {
+            font-size: 3rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .module-card h3 {
+            color: var(--deep-teal);
+            font-weight: 600;
+        }
+
+        .practice-section {
+            margin-bottom: 2rem;
+        }
+
+        .section-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--deep-teal);
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--border-glass);
+        }
+
+        /* Practice Area */
+        .question-box {
+            background: rgba(45, 156, 166, 0.08);
+            border: 2px solid rgba(45, 156, 166, 0.25);
+            padding: 2rem;
+            border-radius: 16px;
+            margin-bottom: 2rem;
+            position: relative;
+        }
+
+        .question-tag {
+            display: inline-block;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            padding: 0.35rem 0.8rem;
+            color: white;
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            border-radius: 20px;
+            margin-bottom: 1rem;
+            letter-spacing: 0.5px;
+        }
+
+        #question-text {
+            font-size: 1.1rem;
+            font-weight: 400;
+            line-height: 1.7;
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+        }
+
+        #recording-indicator {
+            display: none;
+            align-items: center;
+            gap: 0.5rem;
+            color: #ef4444;
+            font-weight: 600;
+            margin-top: 1rem;
+        }
+
+        .pulse {
+            width: 12px;
+            height: 12px;
+            background: #ef4444;
+            border-radius: 50%;
+            box-shadow: 0 0 0 #ef4444;
+            animation: pulse-red 2s infinite;
+        }
+
+        @keyframes pulse-red {
+            0% {
+                transform: scale(0.95);
+                box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
+            }
+
+            70% {
+                transform: scale(1);
+                box-shadow: 0 0 0 10px rgba(239, 68, 68, 0);
+            }
+
+            100% {
+                transform: scale(0.95);
+                box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
+            }
+        }
+
+        /* Results Area */
+        .score-card {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .band-score {
+            font-size: 4rem;
+            font-weight: 700;
+            font-family: 'Outfit', sans-serif;
+            color: var(--primary);
+        }
+
+        .feedback-content {
+            background: var(--bg-card);
+            padding: 2rem;
+            border-radius: 16px;
+            margin-top: 1rem;
+            font-size: 1rem;
+            border: 2px solid var(--border-glass);
+        }
+
+        /* Markdown Styles within Feedback */
+        .feedback-content h3 {
+            color: var(--deep-teal);
+            margin-top: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .feedback-content ul {
+            padding-left: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .feedback-content li {
+            margin-bottom: 0.5rem;
+        }
+
+        .feedback-content strong {
+            color: var(--accent);
+        }
+
+        /* Report Card Styles */
+        .report-card {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .criteria-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+        }
+
+        .criteria-item {
+            background: var(--bg-input);
+            border: 2px solid var(--border-glass);
+            border-radius: 12px;
+            padding: 1rem;
+        }
+
+        .criteria-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .criteria-name {
+            font-weight: 600;
+            color: var(--deep-teal);
+        }
+
+        .criteria-score {
+            font-size: 1.5rem;
+            font-weight: 700;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        .criteria-feedback {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            line-height: 1.4;
+        }
+
+        .corrections-section {
+            background: rgba(239, 68, 68, 0.08);
+            border: 2px solid rgba(239, 68, 68, 0.25);
+            border-radius: 12px;
+            padding: 1rem;
+        }
+
+        .corrections-section h4 {
+            margin-bottom: 0.75rem;
+            color: var(--text-main);
+        }
+
+        .corrections-section ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .corrections-section li {
+            margin-bottom: 0.5rem;
+            font-size: 0.95rem;
+        }
+
+        .wrong {
+            color: #dc2626;
+            text-decoration: line-through;
+        }
+
+        .correct {
+            color: #059669;
+            font-weight: 500;
+        }
+
+        .tip-section {
+            background: rgba(45, 156, 166, 0.08);
+            border: 2px solid rgba(45, 156, 166, 0.25);
+            border-radius: 12px;
+            padding: 1rem;
+            font-size: 0.95rem;
+        }
+
+        .model-answer-section {
+            background: rgba(93, 206, 124, 0.08);
+            border: 2px solid rgba(93, 206, 124, 0.3);
+            border-radius: 12px;
+            padding: 1rem;
+        }
+
+        .model-answer-section h4 {
+            margin-bottom: 0.75rem;
+            color: #059669;
+        }
+
+        .model-answer-section p {
+            font-size: 0.95rem;
+            line-height: 1.6;
+            color: var(--text-main);
+        }
+
+        .highlight-vocab {
+            background: linear-gradient(135deg, rgba(45, 156, 166, 0.2), rgba(93, 206, 124, 0.2));
+            padding: 0.1rem 0.4rem;
+            border-radius: 4px;
+            font-weight: 500;
+            color: var(--deep-teal);
+        }
+
+        .vocab-glossary {
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 2px dashed rgba(93, 206, 124, 0.3);
+        }
+
+        .vocab-glossary h5 {
+            font-size: 0.85rem;
+            color: #059669;
+            margin-bottom: 0.75rem;
+        }
+
+        .vocab-glossary ul {
+            list-style: none;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .vocab-glossary li {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .vocab-glossary li strong {
+            color: var(--primary);
+            font-size: 0.95rem;
+        }
+
+        .vocab-glossary li span {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            padding-left: 0.5rem;
+            border-left: 2px solid rgba(45, 156, 166, 0.3);
+        }
+
+        @media (max-width: 600px) {
+            .criteria-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="bg-orb orb-1"></div>
+    <div class="bg-orb orb-2"></div>
+
+    <header>
+        <div class="logo" onclick="location.reload()">
+            <img src="https://i.postimg.cc/jsz3MzTJ/Gemini-Generated-Image-vyhgubvyhgubvyhg-(1).png" alt="Ventri Logo">
+            <span class="logo-text">Ventri</span>
+        </div>
+        <button class="theme-toggle" onclick="app.toggleTheme()" aria-label="Toggle Dark Mode" title="Toggle Dark Mode">
+            🌙
+        </button>
+    </header>
+
+    <main>
+        <div class="container">
+
+
+
+            <!-- Dashboard View: Mode Selection -->
+            <div id="dashboard-view" class="view-section">
+                <div style="text-align: center; margin-bottom: 3rem;">
+                    <h1>Master English Fluency</h1>
+                    <p>Select a mode to begin your practice session.</p>
+                    <button onclick="app.showMarkingScheme()"
+                        style="margin-top: 1rem; background: transparent; border: 1px solid var(--border-glass); color: var(--text-muted); padding: 0.5rem 1rem; border-radius: 20px; cursor: pointer; font-size: 0.85rem; transition: all 0.3s ease;"
+                        onmouseover="this.style.borderColor='var(--primary)'; this.style.color='var(--text-main)';"
+                        onmouseout="this.style.borderColor='var(--border-glass)'; this.style.color='var(--text-muted)';">
+                        ℹ️ View IELTS Marking Criteria
+                    </button>
+                </div>
+
+                <div class="glass-panel" style="padding: 2rem;">
+                    <label style="display:block; margin-bottom:0.5rem;">Target Band Score</label>
+                    <select id="target-band">
+                        <option value="5.0">Band 5.0 (Modest)</option>
+                        <option value="6.0">Band 6.0 (Competent)</option>
+                        <option value="7.0" selected>Band 7.0 (Good)</option>
+                        <option value="8.0">Band 8.0 (Very Good)</option>
+                        <option value="9.0">Band 9.0 (Expert)</option>
+                    </select>
+                </div>
+
+                <!-- Speaking Section -->
+                <div class="practice-section">
+                    <h2 class="section-title">Speaking Practice</h2>
+                    <div class="module-grid">
+                        <div class="module-card" onclick="app.startPractice('speaking', 'topic')">
+                            <div class="module-icon">🎙️</div>
+                            <h3>IELTS Speaking Task 2</h3>
+                            <p>Practice the "long turn": speak for 1-2 minutes on a topic card with bullet points.
+                            </p>
+                        </div>
+                        <div class="module-card" onclick="app.startPractice('speaking', 'interview')">
+                            <div class="module-icon">💼</div>
+                            <h3>Job Interview</h3>
+                            <p>Mock HR interview questions to prepare for your career.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Writing Section -->
+                <div class="practice-section">
+                    <h2 class="section-title">Writing Practice</h2>
+                    <div class="module-grid">
+                        <div class="module-card" onclick="app.startPractice('writing', 'academic')">
+                            <div class="module-icon">📝</div>
+                            <h3>IELTS Writing Task 2</h3>
+                            <p>Write 250+ word essays: opinion, discuss both views, problem-solution & more.</p>
+                        </div>
+                        <div class="module-card" onclick="app.startPractice('writing', 'business')">
+                            <div class="module-icon">📧</div>
+                            <h3>Business Writing</h3>
+                            <p>Professional emails, reports, and workplace communication.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Practice View -->
+            <div id="practice-view" class="view-section glass-panel">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
+                    <button class="btn btn-secondary" onclick="app.navigate('dashboard-view')">&larr; Back</button>
+                    <span id="mode-badge"
+                        style="background:var(--primary); color:white; padding:0.25rem 0.75rem; border-radius:20px; font-size:0.8rem; font-weight:600;">SPEAKING</span>
+                </div>
+
+                <div class="question-box">
+                    <div class="question-tag">Question</div>
+                    <p id="question-text">Loading question...</p>
+                    <button id="new-question-btn" class="btn btn-secondary"
+                        style="margin-top:1rem; font-size:0.9rem; padding:0.5rem 1rem;">🔄 New Question</button>
+                </div>
+
+                <!-- Writing Area -->
+                <div id="writing-area" style="display:none;">
+                    <textarea id="writing-input" rows="10" placeholder="Type your answer here..."></textarea>
+                    <div style="text-align:right; margin-top:0.5rem; color:var(--text-muted); font-size:0.9rem;">
+                        Words: <span id="word-count">0</span>
+                    </div>
+                </div>
+
+                <!-- Speaking Area -->
+                <div id="speaking-area" style="display:none; text-align:center;">
+                    <div id="recording-box" style="margin: 2rem 0;">
+                        <button id="record-btn" class="btn btn-primary" onclick="app.toggleRecording()"
+                            style="width:80px; height:80px; border-radius:50%; font-size:2rem; padding:0;"><svg
+                                width="40" height="40" viewBox="0 0 24 24" fill="white">
+                                <path
+                                    d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm-1-9c0-.55.45-1 1-1s1 .45 1 1v6c0 .55-.45 1-1 1s-1-.45-1-1V5zm6 6c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z" />
+                            </svg></button>
+                        <p style="margin-top:1rem;">Click to Start Recording</p>
+                    </div>
+                    <div id="recording-indicator">
+                        <div class="pulse"></div> Recording... <span id="recording-duration"
+                            style="margin-left: 0.5rem; font-family: 'Outfit', monospace; font-size: 1.2rem;">00:00</span>
+                    </div>
+                    <div style="margin-top: 2rem; text-align: left;">
+                        <label style="font-size:0.9rem; color:var(--text-muted);">Transcript:</label>
+                        <div id="transcript-output"
+                            style="background:var(--bg-input); border:2px solid var(--border-glass); padding:1rem; border-radius:12px; min-height:80px; margin-top:0.5rem; color:var(--text-main);">
+                        </div>
+                    </div>
+                </div>
+
+                <button id="submit-answer-btn" class="btn btn-primary btn-large" style="margin-top: 2rem;">Get AI
+                    Feedback</button>
+            </div>
+
+            <!-- Results View -->
+            <div id="results-view" class="view-section glass-panel">
+                <button class="btn btn-secondary" onclick="app.navigate('dashboard-view')"
+                    style="margin-bottom:2rem;">&larr; Back to Dashboard</button>
+
+                <div style="text-align:center;">
+                    <h2>Evaluation Results</h2>
+                    <p>Here is how you performed based on Band <span id="result-target-band">7.0</span> criteria.
+                    </p>
+                </div>
+
+                <div class="score-card" style="margin-top:2rem; text-align:center;">
+                    <div>
+                        <div
+                            style="font-size:0.9rem; text-transform:uppercase; letter-spacing:1px; color:var(--text-muted);">
+                            Estimated Band</div>
+                        <div class="band-score" id="ai-band-score">-</div>
+                    </div>
+                </div>
+
+                <div class="feedback-content" id="ai-feedback">
+                    <!-- Markdown content will process here -->
+                    <p style="color:var(--text-muted);">Generating detailed feedback...</p>
+                </div>
+
+                <button class="btn btn-primary btn-large" onclick="app.startPractice(app.state.mode, app.state.subMode)"
+                    style="margin-top: 2rem;">Practice Again</button>
+            </div>
+
+        </div>
+    </main>
+
+    <script>
+        const app = {
+            state: {
+                mode: null, // 'speaking' | 'writing'
+                targetBand: 7.0,
+                motherTongue: 'Hindi',
+                apiKey: null,
+                currentQuestion: '',
+                transcript: '',
+                isRecording: false,
+                lastEvaluationData: null
+            },
+
+            init() {
+                // Global Error Handler
+                window.onerror = function (msg, url, line) {
+                    alert("App Error: " + msg + "\nLine: " + line);
+                };
+
+                // Load API Key from CONFIG (secrets.js)
+                if (typeof CONFIG !== 'undefined' && CONFIG.GEMINI_API_KEY) {
+                    this.state.apiKey = CONFIG.GEMINI_API_KEY;
+                }
+
+                // Go directly to dashboard
+                this.navigate('dashboard-view');
+
+                this.initTheme();
+                this.setupEventListeners();
+            },
+
+            initTheme() {
+                const savedTheme = localStorage.getItem('theme');
+                if (savedTheme === 'dark') {
+                    document.documentElement.setAttribute('data-theme', 'dark');
+                    this.updateThemeIcon(true);
+                } else {
+                    document.documentElement.removeAttribute('data-theme');
+                    this.updateThemeIcon(false);
+                }
+            },
+
+            toggleTheme() {
+                const currentTheme = document.documentElement.getAttribute('data-theme');
+                if (currentTheme === 'dark') {
+                    document.documentElement.removeAttribute('data-theme');
+                    localStorage.setItem('theme', 'light');
+                    this.updateThemeIcon(false);
+                } else {
+                    document.documentElement.setAttribute('data-theme', 'dark');
+                    localStorage.setItem('theme', 'dark');
+                    this.updateThemeIcon(true);
+                }
+            },
+
+            updateThemeIcon(isDark) {
+                const btn = document.querySelector('.theme-toggle');
+                if (btn) {
+                    btn.innerHTML = isDark ? '☀️' : '🌙';
+                }
+            },
+
+            setupEventListeners() {
+                // Writing Word Count
+                const writeInput = document.getElementById('writing-input');
+                if (writeInput) {
+                    writeInput.addEventListener('input', (e) => {
+                        const words = e.target.value.trim().split(/\s+/).filter(w => w.length > 0).length;
+                        document.getElementById('word-count').innerText = words;
+                    });
+                }
+
+                // Submit Answer
+                const submitBtn = document.getElementById('submit-answer-btn');
+                if (submitBtn) {
+                    submitBtn.addEventListener('click', () => {
+                        this.submitForEvaluation();
+                    });
+                }
+
+                // Re-bind dynamic buttons here if needed, or rely on them being in DOM
+                const newQBtn = document.getElementById('new-question-btn');
+                if (newQBtn) newQBtn.addEventListener('click', () => app.generateQuestion());
+
+                const recBtn = document.getElementById('record-btn');
+                if (recBtn) recBtn.addEventListener('click', () => app.toggleRecording());
+            },
+
+            showMarkingScheme() {
+                document.getElementById('marking-modal').style.display = 'block';
+                document.body.style.overflow = 'hidden';
+            },
+
+            hideMarkingScheme() {
+                document.getElementById('marking-modal').style.display = 'none';
+                document.body.style.overflow = 'auto';
+            },
+
+            navigate(viewId) {
+                console.log("Navigating to:", viewId);
+                // Simple, robust navigation
+                const allViews = document.querySelectorAll('.view-section');
+                allViews.forEach(el => {
+                    el.style.display = 'none';
+                    el.classList.remove('active');
+                    el.style.opacity = '0'; // Reset opacity
+                });
+
+                const target = document.getElementById(viewId);
+                if (target) {
+                    target.style.display = 'flex';
+                    // Force reflow to ensure transition works
+                    void target.offsetWidth;
+                    target.style.opacity = '1';
+                    target.classList.add('active');
+                } else {
+                    console.error("View not found:", viewId);
+                }
+            },
+
+            startPractice(mode, subMode) {
+                this.state.mode = mode;
+                this.state.subMode = subMode;
+                this.state.targetBand = document.getElementById('target-band').value;
+                // Mother tongue is selected in the vocab section of results, default to Hindi
+                this.state.motherTongue = this.state.motherTongue || 'Hindi';
+
+                // Update UI badge with descriptive name
+                const badge = document.getElementById('mode-badge');
+                const modeNames = {
+                    'topic': '🎙️ IELTS Part 2',
+                    'interview': '💼 Job Interview',
+                    'academic': '📝 IELTS Task 2',
+                    'business': '📧 Business Writing'
+                };
+                if (badge) badge.innerText = modeNames[subMode] || mode.toUpperCase();
+
+                const writingArea = document.getElementById('writing-area');
+                const speakingArea = document.getElementById('speaking-area');
+
+                if (mode === 'writing') {
+                    if (writingArea) writingArea.style.display = 'block';
+                    if (speakingArea) speakingArea.style.display = 'none';
+                } else {
+                    if (writingArea) writingArea.style.display = 'none';
+                    if (speakingArea) speakingArea.style.display = 'block';
+                }
+
+                this.state.transcript = "";
+                this.state.currentQuestion = "";
+                this.state.lastEvaluationData = null; // Clear previous results
+
+                // Clear any stale feedback UI immediately
+                const feedbackContainer = document.getElementById('ai-feedback');
+                if (feedbackContainer) feedbackContainer.innerHTML = '';
+
+                // Clear inputs/outputs
+                const writingInput = document.getElementById('writing-input');
+                if (writingInput) {
+                    writingInput.value = "";
+                    document.getElementById('word-count').innerText = "0";
+                }
+                const transcriptOut = document.getElementById('transcript-output');
+                if (transcriptOut) transcriptOut.innerText = "";
+
+                this.navigate('practice-view');
+                this.generateQuestion();
+            },
+
+            async callGemini(prompt) {
+                if (!this.state.apiKey) {
+                    alert("API Key is missing. Please go to setup.");
+                    return null;
+                }
+
+                const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${this.state.apiKey}`;
+                const payload = {
+                    contents: [{
+                        parts: [{ text: prompt }]
+                    }]
+                };
+
+                try {
+                    const response = await fetch(url, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+
+                    if (!response.ok) {
+                        const errData = await response.json();
+                        throw new Error(errData.error?.message || 'API Error');
+                    }
+
+                    const data = await response.json();
+                    return data.candidates[0].content.parts[0].text;
+                } catch (error) {
+                    console.error("Gemini API Error:", error);
+                    alert("Error communicating with AI: " + error.message);
+                    return null;
+                }
+            },
+
+            async generateQuestion() {
+                const qTextEl = document.getElementById('question-text');
+                qTextEl.innerText = "Generating question...";
+                qTextEl.style.opacity = 0.5;
+
+                // Sub-mode specific prompts
+                const prompts = {
+                    'topic': `Generate ONE authentic IELTS Speaking Part 2 cue card topic.
+
+FORMAT (follow this EXACTLY):
+[Main Topic - starts with "Describe a..."]
+
+You should say:
+• [First bullet point - What/Who/Where]
+• [Second bullet point - When/How]  
+• [Third bullet point - Details/Context]
+• and explain [Why/Feelings/Impact]
+
+EXAMPLE:
+Describe a book you read recently that you found interesting.
+
+You should say:
+• what the book was about
+• why you decided to read it
+• how long it took you to finish it
+• and explain why you found it interesting
+
+Generate a NEW topic from categories like: a person, a place, an event, an object, a skill, an experience, or a memory. Return ONLY the cue card text, no additional commentary.`,
+                    'interview': `Generate ONE professional job interview question for a fresh graduate. Return ONLY the question text, no formatting, no asterisks. Example: "Tell me about a time when you had to work under pressure. How did you handle it?"`,
+                    'academic': `Generate ONE authentic IELTS Writing Task 2 essay question.
+
+QUESTION TYPES (randomly choose one):
+1. Opinion/Agree-Disagree: "To what extent do you agree or disagree?"
+2. Discuss Both Views: "Discuss both views and give your own opinion."
+3. Advantages/Disadvantages: "Do the advantages outweigh the disadvantages?"
+4. Problem/Solution: "What are the causes? What solutions can you suggest?"
+5. Two-Part Question: Two related questions about one topic
+
+FORMAT:
+[Topic statement about a social, educational, environmental, or technological issue]
+
+[Task instruction matching one of the 5 types above]
+
+EXAMPLES:
+"Some people believe that social media has a negative impact on society. Others think it brings people closer together. Discuss both views and give your own opinion."
+
+"In many countries, the number of people choosing to live alone is increasing. What are the reasons for this trend? Is this a positive or negative development?"
+
+"Some employers think that formal academic qualifications are more important than life experience and personal qualities. To what extent do you agree or disagree?"
+
+Generate a NEW question on topics like: education, technology, environment, health, work, society, culture, or government. Return ONLY the essay question, no commentary.`,
+                    'business': `Generate ONE professional business writing task. Return ONLY the task description, no formatting, no asterisks. Example: "Write an email to your manager requesting approval for a two-day leave next week for personal reasons."`
+                };
+
+                const prompt = prompts[this.state.subMode] || prompts['topic'];
+                const result = await this.callGemini(prompt);
+
+                if (result) {
+                    // Clean up any markdown artifacts
+                    let cleanResult = result
+                        .replace(/\*\*/g, '')
+                        .replace(/\*/g, '')
+                        .replace(/^#+\s*/gm, '')
+                        .replace(/^-\s*/gm, '')
+                        .trim();
+
+                    this.state.currentQuestion = cleanResult;
+                    qTextEl.innerText = cleanResult;
+                } else {
+                    qTextEl.innerText = "Failed to load question. Please try again.";
+                }
+                qTextEl.style.opacity = 1;
+            },
+
+            toggleRecording() {
+                const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+                if (!SpeechRecognition) {
+                    alert("Web Speech API is not supported in this browser. Please use Chrome or Edge.");
+                    return;
+                }
+
+                const micIcon = `<svg width="40" height="40" viewBox="0 0 24 24" fill="white"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm-1-9c0-.55.45-1 1-1s1 .45 1 1v6c0 .55-.45 1-1 1s-1-.45-1-1V5zm6 6c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z" /></svg>`;
+                const stopIcon = `<svg width="40" height="40" viewBox="0 0 24 24" fill="white"><path d="M6 6h12v12H6z" /></svg>`;
+
+                if (this.state.isRecording) {
+                    // Stop recording
+                    this.state.isRecording = false;
+                    if (this.recognition) {
+                        this.recognition.stop();
+                    }
+                    // Stop Timer
+                    if (this.recordingTimer) {
+                        clearInterval(this.recordingTimer);
+                        this.recordingTimer = null;
+                    }
+                    // Reset UI
+                    const recBtn = document.getElementById('record-btn');
+                    recBtn.style.background = ""; // Reset to default (primary class)
+                    recBtn.style.boxShadow = "";
+                    recBtn.innerHTML = micIcon;
+                    document.getElementById('recording-indicator').style.display = 'none';
+                    return;
+                }
+
+                // Start Recording
+                this.state.isRecording = true;
+                const recBtn = document.getElementById('record-btn');
+                recBtn.style.background = "#ef4444"; // Red for stop
+                recBtn.style.boxShadow = "0 4px 20px rgba(239, 68, 68, 0.4)";
+                recBtn.innerHTML = stopIcon;
+                document.getElementById('recording-indicator').style.display = 'flex';
+                document.getElementById('transcript-output').innerText = '';
+
+                // Start Timer
+                this.recordingStartTime = Date.now();
+                const durationEl = document.getElementById('recording-duration');
+                durationEl.innerText = '00:00';
+                const startTime = Date.now(); // Store in local variable
+                this.recordingTimer = setInterval(() => {
+                    const elapsed = Math.floor((Date.now() - startTime) / 1000);
+                    const mins = String(Math.floor(elapsed / 60)).padStart(2, '0');
+                    const secs = String(elapsed % 60).padStart(2, '0');
+                    durationEl.innerText = `${mins}:${secs}`;
+                }, 1000);
+
+                this.recognition = new SpeechRecognition();
+                this.recognition.continuous = true;
+                this.recognition.interimResults = true;
+                this.recognition.lang = 'en-US';
+
+                let finalTranscript = '';
+
+                this.recognition.onresult = (event) => {
+                    let interimTranscript = '';
+                    for (let i = event.resultIndex; i < event.results.length; ++i) {
+                        if (event.results[i].isFinal) {
+                            finalTranscript += event.results[i][0].transcript;
+                        } else {
+                            interimTranscript += event.results[i][0].transcript;
+                        }
+                    }
+                    document.getElementById('transcript-output').innerText = finalTranscript + interimTranscript;
+                    this.state.transcript = finalTranscript + interimTranscript;
+                };
+
+                this.recognition.onerror = (event) => {
+                    console.error("Speech Recognition Error:", event.error);
+
+                    // no-speech is non-fatal - just means silence was detected
+                    if (event.error === 'no-speech') {
+                        console.log("No speech detected, continuing to listen...");
+                        // Don't stop, just let it continue
+                        return;
+                    }
+
+                    // Handle fatal errors
+                    let message = "Speech recognition error: " + event.error;
+                    if (event.error === 'not-allowed') {
+                        message = "Microphone access was denied. Please allow microphone permissions and try again.";
+                    } else if (event.error === 'network') {
+                        message = "Network error. Speech recognition requires an internet connection.";
+                    } else if (event.error === 'aborted') {
+                        // User stopped, don't show error
+                        return;
+                    }
+
+                    alert(message);
+                    // Reset state on error
+                    this.state.isRecording = false;
+                    recBtn.style.background = "";
+                    recBtn.style.boxShadow = "";
+                    recBtn.innerHTML = micIcon;
+                    document.getElementById('recording-indicator').style.display = 'none';
+                    if (this.recordingTimer) {
+                        clearInterval(this.recordingTimer);
+                        this.recordingTimer = null;
+                    }
+                };
+
+                this.recognition.onend = () => {
+                    // If still recording (user didn't click stop), restart recognition
+                    if (this.state.isRecording) {
+                        console.log("Recognition ended, restarting...");
+                        try {
+                            this.recognition.start();
+                        } catch (e) {
+                            console.error("Failed to restart recognition:", e);
+                        }
+                        return;
+                    }
+
+                    // Otherwise, clean up
+                    recBtn.style.background = ""; // Reset to default gradient
+                    recBtn.style.boxShadow = "";
+                    recBtn.classList.add('btn-primary'); // Re-add class style
+                    recBtn.innerHTML = micIcon;
+                    document.getElementById('recording-indicator').style.display = 'none';
+                    // Stop Timer on end as well
+                    if (this.recordingTimer) {
+                        clearInterval(this.recordingTimer);
+                        this.recordingTimer = null;
+                    }
+                };
+
+                this.recognition.start();
+            },
+
+            async submitForEvaluation() {
+                let studentResponse = "";
+
+                if (this.state.mode === 'writing') {
+                    studentResponse = document.getElementById('writing-input').value;
+                } else {
+                    studentResponse = this.state.transcript;
+
+                    // Stop recording if still active before navigating
+                    if (this.state.isRecording) {
+                        this.state.isRecording = false;
+                        if (this.recognition) {
+                            this.recognition.stop();
+                            this.recognition = null;
+                        }
+                        if (this.recordingTimer) {
+                            clearInterval(this.recordingTimer);
+                            this.recordingTimer = null;
+                        }
+                    }
+                }
+
+                if (!studentResponse || studentResponse.trim().length < 5) {
+                    alert("Please provide a longer answer before submitting.");
+                    return;
+                }
+
+                this.navigate('results-view');
+
+                // Reset Results UI to avoid stale state
+                document.getElementById('ai-band-score').innerText = "-";
+                document.getElementById('result-target-band').innerText = this.state.targetBand;
+                const scoreLabel = document.querySelector('.score-card div div:first-child');
+                if (scoreLabel) scoreLabel.innerText = 'ESTIMATED BAND';
+
+                const feedbackContainer = document.getElementById('ai-feedback');
+                feedbackContainer.innerHTML = `
+                    <div style="text-align:center; padding:2rem;">
+                        <div class="pulse" style="margin:0 auto 1rem auto; background:var(--primary);"></div>
+                        <p>Analyzing your response against ${this.state.subMode === 'business' || this.state.subMode === 'interview' ? 'professional criteria' : 'Band ' + this.state.targetBand + ' criteria'}...</p>
+                    </div>`;
+
+                // Build mode-specific prompt following official IELTS band descriptors
+                let prompt;
+
+                // 1. BUSINESS WRITING MODE
+                if (this.state.subMode === 'business') {
+                    prompt = `You are a Corporate Communication Expert. Evaluate this business writing sample.
+                    
+                    **Task:** "${this.state.currentQuestion}"
+                    **User's Response:** "${studentResponse}"
+                    
+                    Score on a scale of 0-10 (10 being perfect executive-level communication).
+                    
+                    ## CRITERIA for Business Writing:
+                    1. **Clarity & Conciseness**: Is the message clear? Is it brief and to the point (BLUF - Bottom Line Up Front)?
+                    2. **Professional Tone**: Is it polite but authoritative? Avoids slang? Proper etiquette?
+                    3. **Purpose Achievement**: Is the Call to Action (CTA) clear? Did it solve the problem?
+                    4. **Structure & Grammar**: Professional formatting? No typos? Good flow?
+                    
+                    Return ONLY valid JSON (no markdown, no preamble):
+                    {
+                        "overallBand": <average score 0-10, 1 decimal>,
+                        "criteria": {
+                            "Clarity & Conciseness": {"score": <0-10>, "feedback": "Feedback on brevity/clarity"},
+                            "Professional Tone": {"score": <0-10>, "feedback": "Feedback on tone/etiquette"},
+                            "Purpose Achievement": {"score": <0-10>, "feedback": "Feedback on goal achievement"},
+                            "Structure & Grammar": {"score": <0-10>, "feedback": "Feedback on errors/flow"}
+                        },
+                        "keyCorrections": [{"wrong": "text", "correct": "improvement"}],
+                        "tipOfTheDay": "One executive communication tip",
+                        "modelAnswer": "A perfect Model Answer (10/10) demonstrating best practices.",
+                        "vocabulary": [{"word": "corporate term", "meaning": "definition", "translation": "Direct translation in ${this.state.motherTongue === 'none' ? 'N/A' : this.state.motherTongue}"}]
+                    }`;
+                }
+
+                // 2. JOB INTERVIEW MODE
+                else if (this.state.subMode === 'interview') {
+                    prompt = `You are a Senior HR Manager at a top multinational company. Evaluate this job interview answer.
+                    
+                    **Question:** "${this.state.currentQuestion}"
+                    **Candidate's Answer:** "${studentResponse}"
+                    
+                    Score on a scale of 0-10 (Hireability Score). 
+                    7+ is passing, 9+ is outstanding. Be strict - would you hire them?
+                    
+                    ## CRITERIA for Interviews:
+                    1. **Content & Relevance**: Did they answer the specific question asked?
+                    2. **Communication Clarity**: Clear speech? Good pace? Confident?
+                    3. **Structure (STAR)**: Did they use Situation-Task-Action-Result structure for behavioral questions?
+                    4. **Professionalism**: Professional vocabulary? No filler words? No slang?
+                    
+                    Return ONLY valid JSON:
+                    {
+                        "overallBand": <average score 0-10, 1 decimal>,
+                        "criteria": {
+                            "Content & Relevance": {"score": <0-10>, "feedback": "Did they answer the question?"},
+                            "Communication Clarity": {"score": <0-10>, "feedback": "Speech quality feedback"},
+                            "Structure (STAR)": {"score": <0-10>, "feedback": "STAR method usage feedback"},
+                            "Professionalism": {"score": <0-10>, "feedback": "Tone/slang/filler feedback"}
+                        },
+                        "keyCorrections": [{"wrong": "text", "correct": "better phrasing"}],
+                        "tipOfTheDay": "One specific interview tip",
+                        "modelAnswer": "A perfect Model Answer (10/10) using the STAR method.",
+                        "vocabulary": [{"word": "professional term", "meaning": "definition", "translation": "Translation in ${this.state.motherTongue === 'none' ? 'N/A' : this.state.motherTongue}"}],
+                        "fillersDetected": {
+                            "count": <number>,
+                            "examples": ["uh", "like"],
+                            "impact": "Impact on professionalism"
+                        }
+                    }`;
+                }
+
+                // 3. IELTS WRITING (Academic Task 2)
+                else if (this.state.mode === 'writing') {
+                    prompt = `You are an official IELTS Writing Task 2 examiner. Evaluate this essay following the EXACT official IELTS band descriptors.
+
+**Question:** "${this.state.currentQuestion}"
+**Student's Essay:** "${studentResponse}"
+**Target Band:** ${this.state.targetBand}
+
+## IELTS Writing Task 2 Marking Criteria (25% each):
+
+### 1. Task Response (TR)
+- Does the essay address ALL parts of the task?
+- Is there a clear position/opinion throughout?
+- Are main ideas relevant and well-developed with examples?
+- Band 5: Partially addresses task, position unclear, limited development
+- Band 6: Addresses task, position generally clear, some ideas underdeveloped
+- Band 7: Addresses all parts, clear position, ideas well extended
+- Band 8-9: Fully addresses all parts with well-developed, relevant ideas
+
+### 2. Coherence & Cohesion (CC)
+- Is the essay logically organized with clear progression?
+- Are paragraphs used appropriately (intro, 2-3 body, conclusion)?
+- Are linking words used effectively without overuse or errors?
+- Band 5: Lacks overall progression, limited use of cohesive devices
+- Band 6: Arranges ideas coherently, uses cohesive devices but may be mechanical
+- Band 7: Logically organizes ideas, good paragraphing, uses cohesion flexibly
+- Band 8-9: Sequences ideas skillfully, cohesion is seamless
+
+### 3. Lexical Resource (LR)
+- Is vocabulary range adequate for the topic?
+- Are there spelling errors or word choice mistakes?
+- Is paraphrasing effective without causing confusion?
+- Band 5: Limited vocabulary, noticeable errors in word choice/spelling
+- Band 6: Adequate vocabulary, some errors but meaning is clear
+- Band 7: Good range, uses less common words, occasional errors
+- Band 8-9: Wide range, sophisticated vocabulary, rare minor errors
+
+### 4. Grammatical Range & Accuracy (GRA)
+- Are various sentence structures used (simple + complex)?
+- Are there frequent grammar errors that impede understanding?
+- Are punctuation and articles used correctly?
+- Band 5: Limited range, frequent errors, meaning sometimes unclear
+- Band 6: Mix of structures, errors occur but don't impede communication
+- Band 7: Good variety, most sentences error-free
+- Band 8-9: Wide range, rare errors, excellent control
+
+## CRITICAL: BE HARSH AND REALISTIC!
+You MUST score honestly. Most learners score between Band 4.0-6.0. Do NOT inflate scores!
+
+### Signs of Band 4.0-4.5 (VERY common - don't hesitate to give this):
+- Under 200 words or barely addresses the task
+- No clear structure (missing intro/conclusion)
+- Very basic vocabulary (good, bad, important)
+- Frequent grammar errors throughout
+- Ideas are unclear or illogical
+
+### Signs of Band 5.0-5.5 (Common for intermediate learners):
+- Attempts to address task but misses some parts
+- Has paragraphs but poor organization
+- Limited vocabulary, some spelling errors
+- Grammar errors but meaning usually clear
+- Ideas present but underdeveloped
+
+### Signs of Band 6.0-6.5 (Above average):
+- Addresses most parts of the task
+- Clear paragraphing and logical flow
+- Adequate vocabulary with some less common words
+- Grammar mostly accurate, occasional errors
+- Ideas developed with some supporting examples
+
+### Signs of Band 7.0+ (RARE - requires excellent performance):
+- Fully addresses all parts of the task
+- Excellent organization with cohesive flow
+- Wide vocabulary including sophisticated words
+- Complex grammar used accurately
+- Well-extended ideas with strong examples
+
+## SCORING RULES:
+- Under 250 words = Maximum band 4.5 (automatic penalty)
+- Under 200 words = Maximum band 4.0
+- If essay is off-topic or generic = Maximum band 5.0
+- Overall band = Average of 4 criteria scores (round to nearest 0.5)
+
+                Return ONLY valid JSON (no markdown, no preamble):
+{
+    "overallBand": <calculated average of 4 scores>,
+    "criteria": {
+        "Task Response": {"score": <band>, "feedback": "Specific feedback on task achievement"},
+        "Coherence & Cohesion": {"score": <band>, "feedback": "Specific feedback on organization"},
+        "Lexical Resource": {"score": <band>, "feedback": "Specific feedback on vocabulary"},
+        "Grammatical Range & Accuracy": {"score": <band>, "feedback": "Specific feedback on grammar"}
+    },
+    "keyCorrections": [
+        {"wrong": "error from essay", "correct": "correction"}
+    ],
+    "tipOfTheDay": "One specific, actionable tip based on their weakest area",
+                    "modelAnswer": "A well-structured Band ${this.state.targetBand} model essay with CLEAR PARAGRAPHING. Structure: Introduction (paraphrase + thesis) -> Body Paragraph 1 (main idea + examples) -> Body Paragraph 2 (main idea + examples) -> Conclusion (summary + final thought). USE \\\\n\\\\n for paragraph breaks. Mark [[key vocabulary]] in double brackets. Must be 250+ words.",
+                    "vocabulary": [
+                        {"word": "key vocabulary", "meaning": "Brief English definition", "translation": "Direct translation in ${this.state.motherTongue === 'none' ? 'N/A' : this.state.motherTongue}"}
+                    ]
+                }`;
+                } else {
+                    // Speaking prompt
+                    prompt = `You are an official IELTS Speaking examiner. Evaluate this spoken response following the EXACT official IELTS band descriptors.
+
+**Question:** "${this.state.currentQuestion}"
+**Student's Transcript:** "${studentResponse}"
+**Target Band:** ${this.state.targetBand}
+
+## IMPORTANT: Slang & Code-Switching Detection
+Identify ANY slang, informal expressions, or code-switching patterns in the response, especially:
+- **Tanglish** (Tamil + English mixing, e.g., "I'm feeling very tired-aa", "That's too much-nu")
+- **Hinglish** (Hindi + English)
+- **Singlish** (Singapore English patterns)
+- **General slang** (gonna, wanna, innit, y'know, etc.)
+
+For IELTS, formal English is expected. Flag these and suggest formal alternatives.
+
+## IELTS Speaking Marking Criteria (25% each):
+
+### 1. Fluency & Coherence (FC)
+- Does the speaker maintain flow without excessive hesitation or repetition?
+- Are ideas logically organized and connected?
+- Are discourse markers used effectively (well, so, actually, etc.)?
+- **FILLER DETECTION**: Look for hesitation markers in the transcript:
+  - Verbal fillers: "uhh", "umm", "uh", "uhm", "er", "ah", "hmm"
+  - Word fillers: "like", "you know", "I mean", "basically", "actually" (when overused)
+  - Repetitions: same word/phrase repeated due to hesitation
+  - Each filler reduces fluency score. Many fillers = Band 4-5 for this criterion.
+- Band 4: Frequent long pauses, many fillers (uh, um), cannot maintain flow
+- Band 5: Noticeable pauses, repetition, some fillers, limited use of connectors
+- Band 6: Willing to speak at length, occasional hesitation/fillers, uses connectors
+- Band 7: Speaks at length fluently, minimal fillers, flexible use of discourse markers
+- Band 8-9: Effortless fluency, no fillers, fully coherent with sophisticated cohesion
+
+### 2. Lexical Resource (LR)
+- Is vocabulary sufficient for the topic?
+- Are less common/idiomatic expressions used appropriately?
+- **Slang/code-switching affects this score** - informal language lowers the band
+- Band 5: Basic vocabulary, limited flexibility, some inappropriate word choice
+- Band 6: Adequate vocabulary, attempts less common words, some errors
+- Band 7: Good range, uses less common words naturally, occasional slips
+- Band 8-9: Wide vocabulary, idiomatic language used naturally
+
+### 3. Grammatical Range & Accuracy (GRA)
+- Are both simple and complex sentences used?
+- Are errors frequent enough to impede communication?
+- **Code-switching grammar patterns** (e.g., Tanglish sentence endings) affect this score
+- Band 5: Limited sentence types, frequent errors but meaning usually clear
+- Band 6: Mix of structures, errors occur but communication maintained
+- Band 7: Good variety of structures, mostly accurate, errors don't impede
+- Band 8-9: Wide range with full flexibility, rare slips only
+
+### 4. Pronunciation (P)
+- Can speech be understood throughout?
+- Are word stress, sentence stress, and intonation used effectively?
+- (Note: Accent is NOT penalized—only clarity matters)
+- Band 5: Generally intelligible, some strain for listener
+- Band 6: Generally clear, some pronunciation features used effectively
+- Band 7: Easy to understand, good use of features, occasional lapses
+- Band 8-9: Effortless to understand, uses all features precisely
+
+## CRITICAL: BE HARSH AND REALISTIC!
+You MUST score honestly. Most learners score between Band 4.0-6.0. Do NOT inflate scores!
+
+### Signs of Band 4.0-4.5 (VERY common - don't hesitate to give this):
+- Very short, underdeveloped answers
+- Frequent long pauses, lots of hesitation
+- Basic vocabulary only (good, bad, nice, thing)
+- Frequent grammar errors (wrong tenses, missing articles)
+- Cannot extend ideas, gives one-sentence answers
+
+### Signs of Band 5.0-5.5 (Common for intermediate learners):
+- Can answer but struggles to extend
+- Some pauses and self-corrections
+- Limited vocabulary range
+- Noticeable grammar errors
+- Ideas are present but not well-developed
+
+### Signs of Band 6.0-6.5 (Above average):
+- Speaks reasonably fluently with some hesitation
+- Uses some less common vocabulary
+- Grammar mostly accurate with occasional errors
+- Can develop ideas with examples
+
+### Signs of Band 7.0+ (RARE - requires excellent performance):
+- Speaks fluently with natural pace
+- Wide vocabulary including idioms
+- Complex grammar used accurately
+- Well-developed, coherent extended responses
+
+## SCORING RULES:
+- Very short answers (under 50 words) = Maximum band 4.5
+- Heavy slang/code-switching = Reduce Lexical Resource score by 0.5-1.0
+- If the answer is generic or lacks depth = Maximum band 5.5
+- Overall band = Average of 4 criteria scores (round to nearest 0.5)
+
+Return ONLY valid JSON (no markdown, no extra text):
+{
+    "overallBand": <calculated average>,
+    "criteria": {
+        "Fluency & Coherence": {"score": <band>, "feedback": "Specific feedback on flow and coherence"},
+        "Lexical Resource": {"score": <band>, "feedback": "Specific feedback on vocabulary including slang usage"},
+        "Grammatical Range & Accuracy": {"score": <band>, "feedback": "Specific feedback on grammar"},
+        "Pronunciation": {"score": <band>, "feedback": "Feedback inferred from transcript patterns"}
+    },
+    "slangDetected": {
+        "found": true/false,
+        "type": "Tanglish/Hinglish/Singlish/General Slang/None",
+        "examples": [
+            {"slang": "the slang phrase used", "formal": "formal alternative", "explanation": "Why this is informal"}
+        ]
+    },
+    "fillersDetected": {
+        "count": <number of fillers found>,
+        "examples": ["uhh", "umm", "like", etc - list actual fillers found in transcript],
+        "impact": "Describe how fillers affected the Fluency score"
+    },
+    "keyCorrections": [
+        {"wrong": "what they said", "correct": "better phrasing"}
+    ],
+    "tipOfTheDay": "One specific tip for their weakest area",
+    "modelAnswer": "A well-structured Band ${this.state.targetBand} model spoken response. Structure: Opening statement -> Address each bullet point from the cue card with examples/details -> Explain the 'why' aspect with personal insight -> Natural conclusion. Use \\n\\n between sections. Mark [[key phrases and vocabulary]] in double brackets. Should be 150-200 words (1-2 min speaking).",
+    "vocabulary": [
+        {"word": "key phrase", "meaning": "Brief English definition", "translation": "Translation in ${this.state.motherTongue === 'none' ? 'N/A' : this.state.motherTongue}"}
+    ]
+}`;
+                }
+
+                const feedback = await this.callGemini(prompt);
+
+                if (feedback) {
+                    try {
+                        // Robust JSON extraction (JSON mining)
+                        let jsonStr = feedback.trim();
+                        const firstBrace = jsonStr.indexOf('{');
+                        const lastBrace = jsonStr.lastIndexOf('}');
+
+                        if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
+                            jsonStr = jsonStr.substring(firstBrace, lastBrace + 1);
+                        } else {
+                            throw new Error("Invalid response format");
+                        }
+
+                        const data = JSON.parse(jsonStr);
+                        this.state.lastEvaluationData = data;
+
+                        // Update Score & Labels based on Mode
+                        const scoreLabel = document.querySelector('.score-card div div:first-child');
+                        const subtitleText = document.querySelector('#results-view div[style*="text-align:center"] p');
+
+                        if (this.state.subMode === 'interview' || this.state.subMode === 'business') {
+                            scoreLabel.innerText = this.state.subMode === 'interview' ? 'HIREABILITY SCORE' : 'PROFESSIONAL IMPACT SCORE';
+                            subtitleText.innerText = "Here is how you performed against professional standards.";
+                            document.getElementById('ai-band-score').innerText = data.overallBand + "/10";
+                        } else {
+                            scoreLabel.innerText = 'ESTIMATED BAND';
+                            subtitleText.innerHTML = `Here is how you performed based on Band <span id="result-target-band">${this.state.targetBand}</span> criteria.`;
+                            document.getElementById('ai-band-score').innerText = data.overallBand;
+                        }
+
+                        // Build report card HTML
+                        let html = '<div class="report-card">';
+
+                        // Add "View My Response" expandable section at the top
+                        html += `<div class="my-response-section" style="margin-bottom: 1.5rem;">
+                            <button onclick="document.getElementById('user-response-content').classList.toggle('hidden'); this.querySelector('.arrow').classList.toggle('rotated');" 
+                                style="width: 100%; display: flex; align-items: center; justify-content: space-between; background: rgba(255,255,255,0.05); border: 1px solid var(--border-glass); padding: 0.75rem 1rem; border-radius: 12px; color: var(--text-main); cursor: pointer; font-size: 0.95rem;">
+                                <span>📄 View My ${this.state.mode === 'writing' ? 'Essay' : 'Transcript'}</span>
+                                <span class="arrow" style="transition: transform 0.3s;">▼</span>
+                            </button>
+                            <div id="user-response-content" class="hidden" style="margin-top: 0.75rem; padding: 1rem; background: var(--bg-input); border: 2px solid var(--border-glass); border-radius: 12px; max-height: 300px; overflow-y: auto; white-space: pre-wrap; font-size: 0.9rem; line-height: 1.6; color: var(--text-main); text-align: left;">${studentResponse.trim()}</div>
+                        </div>
+                        <style>
+                            .hidden { display: none !important; }
+                            .arrow.rotated { transform: rotate(180deg); }
+                        </style>`;
+
+                        // Criteria scores
+                        html += '<div class="criteria-grid">';
+                        for (const [name, info] of Object.entries(data.criteria)) {
+                            const scoreColor = info.score >= 7 ? '#10b981' : info.score >= 5.5 ? '#f59e0b' : '#ef4444';
+                            html += `
+                                <div class="criteria-item">
+                                    <div class="criteria-header">
+                                        <span class="criteria-name">${name}</span>
+                                        <span class="criteria-score" style="color:${scoreColor}">${info.score}</span>
+                                    </div>
+                                    <p class="criteria-feedback">${info.feedback}</p>
+                                </div>
+                            `;
+                        }
+                        html += '</div>';
+
+                        // Corrections
+                        if (data.keyCorrections && data.keyCorrections.length > 0) {
+                            // Filter out placeholder "no errors" messages
+                            const realCorrections = data.keyCorrections.filter(c =>
+                                !c.wrong.toLowerCase().includes('no significant') &&
+                                !c.wrong.toLowerCase().includes('no errors') &&
+                                !c.wrong.toLowerCase().includes('none') &&
+                                c.wrong.toLowerCase() !== 'n/a'
+                            );
+
+                            if (realCorrections.length > 0) {
+                                html += '<div class="corrections-section"><h4>📝 Key Corrections</h4><ul>';
+                                for (const c of realCorrections) {
+                                    html += `<li><span class="wrong">${c.wrong}</span> → <span class="correct">${c.correct}</span></li>`;
+                                }
+                                html += '</ul></div>';
+                            } else {
+                                // No real corrections - show congratulations
+                                html += `<div class="corrections-section" style="background: rgba(16, 185, 129, 0.1); border-color: rgba(16, 185, 129, 0.3);">
+                                    <h4 style="color: #10b981;">🎉 Excellent Work!</h4>
+                                    <p style="color: var(--text-muted);">No significant corrections needed. Your response demonstrates strong command of English.</p>
+                                </div>`;
+                            }
+                        }
+
+                        // Slang Detection (for speaking mode)
+                        if (data.slangDetected && data.slangDetected.found) {
+                            html += `<div class="slang-section" style="background: rgba(251, 191, 36, 0.1); border: 1px solid rgba(251, 191, 36, 0.3); border-radius: 12px; padding: 1rem; margin-top: 1rem;">
+                                <h4 style="color: #fbbf24; margin-bottom: 0.75rem;">🗣️ Slang Detected: ${data.slangDetected.type}</h4>
+                                <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 0.75rem;">For IELTS, formal English is expected. Here are the informal expressions found:</p>
+                                <ul style="list-style: none; padding: 0;">`;
+                            for (const s of data.slangDetected.examples) {
+                                html += `<li style="margin-bottom: 0.75rem; padding: 0.5rem; background: rgba(0,0,0,0.2); border-radius: 8px;">
+                                    <div><span class="wrong">${s.slang}</span> → <span class="correct">${s.formal}</span></div>
+                                    <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.25rem;">${s.explanation}</div>
+                                </li>`;
+                            }
+                            html += '</ul></div>';
+                        }
+
+                        // Fillers Detection (for speaking mode)
+                        if (data.fillersDetected && data.fillersDetected.count > 0) {
+                            html += `<div class="fillers-section" style="background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 12px; padding: 1rem; margin-top: 1rem;">
+                                <h4 style="color: #ef4444; margin-bottom: 0.75rem;">🎤 Hesitation Fillers Detected: ${data.fillersDetected.count}</h4>
+                                <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 0.5rem;">
+                                    <strong>Found:</strong> ${data.fillersDetected.examples.join(', ')}
+                                </p>
+                                <p style="font-size: 0.85rem; color: var(--text-muted);">
+                                    <strong>Impact:</strong> ${data.fillersDetected.impact}
+                                </p>
+                            </div>`;
+                        }
+
+                        // Tip
+                        if (data.tipOfTheDay) {
+                            html += `<div class="tip-section">💡 <strong>Tip:</strong> ${data.tipOfTheDay}</div>`;
+                        }
+
+                        // Model Answer
+                        if (data.modelAnswer) {
+                            // Clean up markdown artifacts and convert [[phrase]] to highlighted spans
+                            const highlightedAnswer = data.modelAnswer
+                                .replace(/\\n\\n/g, '</p><p style="margin-top: 1rem;">')  // Convert \n\n to paragraph breaks
+                                .replace(/\n\n/g, '</p><p style="margin-top: 1rem;">')   // Also handle actual newlines
+                                .replace(/\*\*/g, '')  // Remove ** bold markers
+                                .replace(/\*/g, '')    // Remove * italic markers
+                                .replace(/\[\[([^\]]+)\]\]/g, '<span class="highlight-vocab">$1</span>');
+
+                            const headerText = (this.state.subMode === 'interview' || this.state.subMode === 'business')
+                                ? '✨ Model Answer'
+                                : `✨ Model Answer (Band ${this.state.targetBand})`;
+
+                            html += `<div class="model-answer-section">
+                                <h4>${headerText}</h4>
+                                <div class="model-answer-content" style="text-align: left; line-height: 1.8;"><p>${highlightedAnswer}</p></div>`;
+
+                            // Add vocabulary glossary
+                            if (data.vocabulary && data.vocabulary.length > 0) {
+                                html += `<div class="vocab-glossary">
+                                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.5rem;">
+                                        <h5 style="margin: 0;">📚 Key Vocabulary</h5>
+                                        <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                            <label style="font-size: 0.8rem; color: var(--text-muted);">Translation:</label>
+                                            <select id="vocab-language" onchange="app.translateVocabulary(this.value)" style="padding: 0.25rem 0.5rem; font-size: 0.8rem; border-radius: 8px; background: var(--bg-card); border: 1px solid var(--border-glass); color: var(--text-main);">
+                                                <option value="Hindi" ${this.state.motherTongue === 'Hindi' ? 'selected' : ''}>हिंदी (Hindi)</option>
+                                                <option value="Tamil" ${this.state.motherTongue === 'Tamil' ? 'selected' : ''}>தமிழ் (Tamil)</option>
+                                                <option value="Mandarin Chinese" ${this.state.motherTongue === 'Mandarin Chinese' ? 'selected' : ''}>中文 (Mandarin)</option>
+                                                <option value="Malay" ${this.state.motherTongue === 'Malay' ? 'selected' : ''}>Bahasa Melayu</option>
+                                                <option value="Telugu" ${this.state.motherTongue === 'Telugu' ? 'selected' : ''}>తెలుగు (Telugu)</option>
+                                                <option value="Malayalam" ${this.state.motherTongue === 'Malayalam' ? 'selected' : ''}>മലയാളം (Malayalam)</option>
+                                                <option value="Arabic" ${this.state.motherTongue === 'Arabic' ? 'selected' : ''}>العربية (Arabic)</option>
+                                                <option value="Japanese" ${this.state.motherTongue === 'Japanese' ? 'selected' : ''}>日本語 (Japanese)</option>
+                                                <option value="Korean" ${this.state.motherTongue === 'Korean' ? 'selected' : ''}>한국어 (Korean)</option>
+                                                <option value="Vietnamese" ${this.state.motherTongue === 'Vietnamese' ? 'selected' : ''}>Tiếng Việt</option>
+                                                <option value="Thai" ${this.state.motherTongue === 'Thai' ? 'selected' : ''}>ภาษาไทย (Thai)</option>
+                                                <option value="Indonesian" ${this.state.motherTongue === 'Indonesian' ? 'selected' : ''}>Bahasa Indonesia</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <ul>`;
+                                for (const v of data.vocabulary) {
+                                    html += `<li>
+                                        <strong>${v.word}</strong>
+                                        <span>${v.meaning}</span>
+                                        ${v.translation && v.translation !== 'N/A' ? `<span style="display: block; color: var(--primary); font-size: 0.9rem; margin-top: 0.25rem;">🌐 ${v.translation}</span>` : ''}
+                                    </li>`;
+                                }
+                                html += `</ul></div>`;
+                            }
+
+                            html += `</div>`;
+                        }
+
+                        html += '</div>';
+                        feedbackContainer.innerHTML = html;
+
+                    } catch (e) {
+                        console.error("Failed to parse JSON:", e);
+
+                        // Update Labels even on failure path to match Mode
+                        const scoreLabel = document.querySelector('.score-card div div:first-child');
+                        const subtitleText = document.querySelector('#results-view div[style*="text-align:center"] p');
+
+                        if (this.state.subMode === 'interview' || this.state.subMode === 'business') {
+                            if (scoreLabel) scoreLabel.innerText = this.state.subMode === 'interview' ? 'HIREABILITY SCORE' : 'PROFESSIONAL IMPACT SCORE';
+                            if (subtitleText) subtitleText.innerText = "Here is how you performed against professional standards.";
+                        } else {
+                            if (scoreLabel) scoreLabel.innerText = 'ESTIMATED BAND';
+                            if (subtitleText) subtitleText.innerHTML = `Here is how you performed based on Band <span id="result-target-band">${this.state.targetBand}</span> criteria.`;
+                        }
+
+                        // Fallback to markdown if JSON parsing fails
+                        feedbackContainer.innerHTML = marked.parse(feedback);
+                        const bandMatch = feedback.match(/(?:Band|Score|Overall)\s*[:*]*\s*(\d+(\.\d)?)/i);
+                        if (bandMatch && document.getElementById('ai-band-score')) {
+                            document.getElementById('ai-band-score').innerText = bandMatch[1] + (this.state.subMode === 'interview' || this.state.subMode === 'business' ? "/10" : "");
+                        }
+                    }
+                } else {
+                    feedbackContainer.innerHTML = "<p style='color:red'>Failed to get feedback. Please try again.</p>";
+                }
+            },
+
+            async translateVocabulary(language) {
+                if (!this.state.lastEvaluationData || !this.state.lastEvaluationData.vocabulary) return;
+
+                // Update state
+                this.state.motherTongue = language;
+
+                const vocabListElement = document.querySelector('.vocab-glossary ul');
+                if (!vocabListElement) return;
+
+                // Show loading state on all translation spans
+                const translationSpans = vocabListElement.querySelectorAll('li span[style*="color: var(--primary)"]');
+                translationSpans.forEach(span => {
+                    span.innerHTML = '🔄 Translating...';
+                    span.style.opacity = '0.7';
+                });
+
+                // Prepare prompt
+                const words = this.state.lastEvaluationData.vocabulary.map(v => v.word).join(', ');
+                const prompt = `Translate the following English vocabulary words to ${language}. Return ONLY a JSON object where keys are the English words and values are the translations.
+                
+                Words: ${words}
+                
+                Example JSON format:
+                {
+                    "word1": "translation1",
+                    "word2": "translation2"
+                }`;
+
+                const result = await this.callGemini(prompt);
+
+                if (result) {
+                    try {
+                        const jsonStr = result.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+                        const translations = JSON.parse(jsonStr);
+
+                        // Update DOM
+                        const listItems = vocabListElement.querySelectorAll('li');
+                        listItems.forEach((li, index) => {
+                            const originalWord = this.state.lastEvaluationData.vocabulary[index].word;
+                            const translation = translations[originalWord] || 'N/A';
+
+                            // Check if translation span exists, if not create it
+                            let transSpan = li.querySelector('span[style*="color: var(--primary)"]');
+                            if (!transSpan) {
+                                transSpan = document.createElement('span');
+                                transSpan.style.display = 'block';
+                                transSpan.style.color = 'var(--primary)';
+                                transSpan.style.fontSize = '0.9rem';
+                                transSpan.style.marginTop = '0.25rem';
+                                li.appendChild(transSpan);
+                            }
+
+                            transSpan.innerHTML = `🌐 ${translation}`;
+                            transSpan.style.opacity = '1';
+
+                            // Update stored data
+                            this.state.lastEvaluationData.vocabulary[index].translation = translation;
+                        });
+                    } catch (e) {
+                        console.error("Translation error:", e);
+                    }
+                }
+            }
+        };
+
+        // Initialize App
+        document.addEventListener('DOMContentLoaded', () => {
+            app.init();
+
+            // Re-attach specific listeners for dynamic elements if needed,
+            // but here we just need to add the record button listener which was missing in init
+            document.getElementById('new-question-btn').addEventListener('click', () => {
+                app.generateQuestion();
+            });
+
+            document.getElementById('record-btn').addEventListener('click', () => {
+                app.toggleRecording();
+            });
+        });
+    </script>
+
+    <!-- IELTS Marking Scheme Modal - Positioned at body level for full-screen blur -->
+    <div id="marking-modal"
+        style="display:none; position:fixed; top:80px; left:0; width:100%; height:calc(100vh - 80px); background:rgba(255, 255, 255, 0.4); backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px); z-index:999; overflow-y:auto;">
+        <div style="display:flex; justify-content:center; align-items:flex-start; min-height:100%; padding:1.5rem;">
+            <div
+                style="max-width:800px; width:100%; background:var(--bg-card); border-radius:24px; padding:2rem; border:2px solid var(--border-glass); position:relative; box-shadow: 0 20px 60px rgba(31, 80, 110, 0.2);">
+                <!-- Close Button -->
+                <button onclick="app.hideMarkingScheme()"
+                    style="position:absolute; top:1rem; right:1rem; background:var(--bg-input); border:2px solid var(--border-glass); color:var(--text-main); font-size:1.5rem; cursor:pointer; padding:0.25rem 0.5rem; border-radius:8px; z-index:10; transition: all 0.3s ease;"
+                    onmouseover="this.style.borderColor='var(--primary)'; this.style.color='var(--primary)';"
+                    onmouseout="this.style.borderColor='var(--border-glass)'; this.style.color='var(--text-main)';">&times;</button>
+
+                <h2 style="margin:0 0 1.5rem 0;">📋 Official IELTS Marking Criteria</h2>
+
+                <!-- Speaking Criteria -->
+                <div style="margin-bottom:2rem;">
+                    <h3 style="color:var(--deep-teal); margin-bottom:1rem;">🎤 Speaking (4 Criteria, 25% each)</h3>
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+                        <div style="background:var(--bg-tint); padding:1rem; border-radius:12px;">
+                            <h4 style="color:var(--deep-teal); margin-bottom:0.5rem;">Fluency & Coherence</h4>
+                            <p style="font-size:0.85rem; color:var(--text-muted);">Flow of speech, logical organization,
+                                use of discourse markers, hesitation and fillers</p>
+                        </div>
+                        <div style="background:var(--bg-tint); padding:1rem; border-radius:12px;">
+                            <h4 style="color:var(--deep-teal); margin-bottom:0.5rem;">Lexical Resource</h4>
+                            <p style="font-size:0.85rem; color:var(--text-muted);">Vocabulary range, paraphrasing,
+                                idiomatic language, word choice accuracy</p>
+                        </div>
+                        <div style="background:var(--bg-tint); padding:1rem; border-radius:12px;">
+                            <h4 style="color:var(--deep-teal); margin-bottom:0.5rem;">Grammatical Range & Accuracy</h4>
+                            <p style="font-size:0.85rem; color:var(--text-muted);">Sentence variety, complex structures,
+                                grammatical control, error frequency</p>
+                        </div>
+                        <div style="background:var(--bg-tint); padding:1rem; border-radius:12px;">
+                            <h4 style="color:var(--deep-teal); margin-bottom:0.5rem;">Pronunciation</h4>
+                            <p style="font-size:0.85rem; color:var(--text-muted);">Clarity, word/sentence stress,
+                                intonation (accent NOT penalized)</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Writing Criteria -->
+                <div style="margin-bottom:1.5rem;">
+                    <h3 style="color:var(--deep-teal); margin-bottom:1rem;">✍️ Writing (4 Criteria, 25% each)</h3>
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+                        <div style="background:var(--bg-tint); padding:1rem; border-radius:12px;">
+                            <h4 style="color:var(--deep-teal); margin-bottom:0.5rem;">Task Response</h4>
+                            <p style="font-size:0.85rem; color:var(--text-muted);">Addresses all parts of task, clear
+                                position, relevant ideas, development with examples</p>
+                        </div>
+                        <div style="background:var(--bg-tint); padding:1rem; border-radius:12px;">
+                            <h4 style="color:var(--deep-teal); margin-bottom:0.5rem;">Coherence & Cohesion</h4>
+                            <p style="font-size:0.85rem; color:var(--text-muted);">Logical organization, paragraphing,
+                                linking words, progression of ideas</p>
+                        </div>
+                        <div style="background:var(--bg-tint); padding:1rem; border-radius:12px;">
+                            <h4 style="color:var(--deep-teal); margin-bottom:0.5rem;">Lexical Resource</h4>
+                            <p style="font-size:0.85rem; color:var(--text-muted);">Vocabulary range, spelling, word
+                                choice, paraphrasing, collocations</p>
+                        </div>
+                        <div style="background:var(--bg-tint); padding:1rem; border-radius:12px;">
+                            <h4 style="color:var(--deep-teal); margin-bottom:0.5rem;">Grammatical Range & Accuracy</h4>
+                            <p style="font-size:0.85rem; color:var(--text-muted);">Sentence structures, tenses,
+                                punctuation, articles, error frequency</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Band Score Table -->
+                <div style="padding:1rem; border-radius:12px;">
+                    <h4 style="margin-bottom:0.75rem;">📊 Band Score Guide</h4>
+                    <div
+                        style="display:grid; grid-template-columns:repeat(5, 1fr); gap:0.5rem; text-align:center; font-size:0.85rem;">
+                        <div style="background:rgba(239,68,68,0.3); padding:0.5rem; border-radius:8px;">
+                            <strong>4-5</strong><br>Limited
+                        </div>
+                        <div style="background:rgba(251,191,36,0.3); padding:0.5rem; border-radius:8px;">
+                            <strong>5.5-6</strong><br>Modest
+                        </div>
+                        <div style="background:rgba(16,185,129,0.3); padding:0.5rem; border-radius:8px;">
+                            <strong>6.5-7</strong><br>Good
+                        </div>
+                        <div style="background:rgba(99,102,241,0.3); padding:0.5rem; border-radius:8px;">
+                            <strong>7.5-8</strong><br>Very Good
+                        </div>
+                        <div style="background:rgba(236,72,153,0.3); padding:0.5rem; border-radius:8px;">
+                            <strong>8.5-9</strong><br>Expert
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</body>
+
+</html>
