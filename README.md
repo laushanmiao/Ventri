@@ -1,9 +1,5 @@
 # Ventri | AI English Coach 🚀
 
-![Ventri Logo](https://i.postimg.cc/jsz3MzTJ/Gemini-Generated-Image-vyhgubvyhgubvyhg-(1).png)
-
-> **Winner/Participant at InnovHack (GDG On Campus SASTRA Deemed University)** > *Team Ventri*
-
 **Ventri** is an AI-powered communication coach designed to bridge the gap between vernacular speech and global professional fluency. Unlike traditional grammar checkers, Ventri understands cultural context, detects code-switching (like Hinglish or Tanglish), and helps users master IELTS speaking, writing, and job interviews.
 
 ## 📄 The Problem
